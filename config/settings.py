@@ -82,6 +82,25 @@ pymysql.install_as_MySQLdb()
 
 from .secret import AWSDATABASES
 DATABASES = AWSDATABASES
+# DATABASES = {
+#     "default": {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': '',
+#         'USER':'',
+#         'PASSWORD':'',
+#         'HOST':'.chb4vfsxaoy3.ap-northeast-2.rds.amazonaws.com',
+#         'PORT':'3306',
+#         'OPTIONS' : {
+#             'init_command': "SET sql_mode='STRICT_TRANS_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO'",
+#         }
+#     }
+# }
+# AWSS3BUCKET = {
+#     'AWS_ACCESS_KEY_ID' : '',
+#     'AWS_SECRET_ACCESS_KEY' : '',
+#     'AWS_STORAGE_BUCKET_NAME' : '',
+#     'DEFAULT_FILE_STORAGE' : ''
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -117,3 +136,27 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/2.1/howto/static-files/
+from .secret import AWSS3BUCKET
+
+AWS_ACCESS_KEY_ID = AWSS3BUCKET['AWS_ACCESS_KEY_ID']
+AWS_SECRET_ACCESS_KEY = AWSS3BUCKET['AWS_SECRET_ACCESS_KEY']
+AWS_STORAGE_BUCKET_NAME = AWSS3BUCKET['AWS_STORAGE_BUCKET_NAME']
+AWS_REGION = 'ap-northeast-2'
+AWS_S3_CUSTOM_DOMAIN = '%s.s3.%s.amazonaws.com' % (AWS_STORAGE_BUCKET_NAME,AWS_REGION)
+AWS_S3_FILE_OVERWRITE = False
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',
+}
+AWS_DEFAULT_ACL = 'public-read'
+AWS_LOCATION = 'static'
+
+STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR,'static')
+]
+
+DEFAULT_FILE_STORAGE = 'config.s3media.MediaStorage'
