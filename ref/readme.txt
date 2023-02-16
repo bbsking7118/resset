@@ -29,3 +29,5 @@
 1. pip install djangorestframework, app 등록
 2. pip install django-rest-swagger==2.1.2
    잘못된 설치 pip install -U drf-yasg
+
+3. 인증

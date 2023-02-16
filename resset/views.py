@@ -5,6 +5,10 @@ from rest_framework import generics
 from .models import Product
 from .serializers import ProductSerializer
 
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+from .permissions import IsOwnerOnly, IsOwnerOrReadOnly
+
 def product_in_category(request, category_slug=None):
     current_category = None
     categories = Category.objects.all()
@@ -25,9 +29,15 @@ def product_detail(request, id, product_slug=None):
     # return render(request, 'shop/detail.html', {'product': product, 'add_to_cart':add_to_cart})
 
 class ProductList(generics.ListCreateAPIView):
+    # authentication_classes = (TokenAuthentication,)
+    # permission_classes = (IsAuthenticated,)
+
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
 class ProductDetail(generics.RetrieveUpdateDestroyAPIView):
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
     queryset = Product.objects.all()
     serializer_class = ProductSerializer

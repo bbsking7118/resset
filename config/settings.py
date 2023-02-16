@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "resset",
     "rest_framework",
     'rest_framework_swagger',
+    'rest_framework.authtoken',
     'drf_yasg',
 ]
 
@@ -164,6 +165,19 @@ STATICFILES_DIRS = [
 
 DEFAULT_FILE_STORAGE = 'config.s3media.MediaStorage'
 
+# RestFramework
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
+}
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        "api_key": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        },
+    },
+    "LOGIN_URL":"/admin/login/",
+    "LOGOUT_URL":"/admin/logout/"
 }
