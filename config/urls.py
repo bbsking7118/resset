@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework_swagger.views import get_swagger_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -22,5 +23,7 @@ urlpatterns = [
     # path('cart/', include('cart.urls')),
     # path('coupon/', include('coupon.urls')),
     # path('order/', include('order.urls')),
+
+    path('api/doc/', get_swagger_view(title='Product API Manual')),
     path('', include('resset.urls'))
 ]

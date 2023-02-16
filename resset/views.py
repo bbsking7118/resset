@@ -1,6 +1,9 @@
 from django.shortcuts import render, get_object_or_404
 
 from .models import *
+from rest_framework import generics
+from .models import Product
+from .serializers import ProductSerializer
 
 def product_in_category(request, category_slug=None):
     current_category = None
@@ -20,3 +23,11 @@ def product_detail(request, id, product_slug=None):
     return render(request, 'resset/detail.html', {'product': product})
     # add_to_cart = AddProductForm(initial={'quantity':1})
     # return render(request, 'shop/detail.html', {'product': product, 'add_to_cart':add_to_cart})
+
+class ProductList(generics.ListCreateAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+class ProductDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
