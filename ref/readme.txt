@@ -44,9 +44,101 @@ aws ec2 서버에 배포
     sudo usermod -a -G djangogroup ubuntu
     sudo chmod g+w /var/www/e2db
 5. 필요한 패키지 설치
+    python3 --version
+    {
+        sudo apt-get install python3.8
+        sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 1
+        sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.8 2
+        sudo update-alternatives --config python3 ==> 2선택
+        python --version => python3.8.0
+
+    }
     sudo apt-get install build-essential libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info libssl-dev
     sudo apt-get install python3-dev python3-pip python3-cffi python3-venv
-    pip freeze > requirements.txt
 
-    config/setting.py : DEBUG = False ALLOWED_HOST = ['.compute.amazonaws.com']
+
+
+6. 파이썬 가상환경설정
+    cd /var/www/e2db
+    sudo apt-get install python3.8-venv
+    sudo python3.8 -m venv venv
+    sudo -s
+    source venv/bin/activate
+    {
+        for test
+        pip install django
+        pip install django-admin startproject config .
+        python manage.py runserver 0:8000
+    }
+
+7. 소스업로드
+    config/setting.py : DEBUG = False ALLOWED_HOST = ['.compute.amazonaws.com','127.0.0.1,'localhost']
+    pip freeze > requirements.txt
+    소스 업로드
+
+    pip install -r requirements.txt
+    pip install uwsgi
+
+7. uwsgi 환경설정
+    sudo mkdir run logs ssl
+    sudo chown django:www-data run // sudo chown django-www-data logs
+    vim /var/www/e2db/run/uwsgi.ini
+[uwsgi]
+uid = django
+base = /var/www/e2db
+home = %(base)/venv
+chdir = %(base)
+module = config.wsgi:application
+env = DJANGO_SETTIONGS_MODULE=config.settings
+master = true
+processes = 5
+socket = %(base)/run/uwsgi.sock
+logto = %(base)/logs/uwsgi.log
+chown-socket = %(uid):www-data
+chmod-socket = 660
+vacuum = true
+
+    vim /etc/systemd/system/uwsgi.service
+[Unit]
+Description=uWSGI Emperor service
+
+[Service]
+ExecStart=/var/www/e2db/venv/bin/uwsgi --emperor /var/www/e2db/run
+User=django
+Group=www-data
+Restart=on-failure
+KillSignal=SIGQUIT
+Type=notivy
+NotifyAccess=all
+StandardError=syslog
+
+[Install]
+WantedBy=munti-user.target
+
+    systemctl start uwsgi // systemctl enable uwsgi // systemctl status uwsgi
+
+8. nginx 설정
+    cp etc/nginx/sites-available/default /etc/nginx/sites-available/e2db
+    ln -s /etc/nginx/sites-available/onlineshop /etc/nginx/sites-enabled/
+    vim /etc/nginx/nginx.conf
+server_name_hash-bucket_size 128; => 여러개 있음. 앞에 #을 삭제해야함
+    vim /etc/nginx/sites-available/e2db
+upstream django {
+    server unix:/var/www/e2db/run/uwsgi.sock;
+}
+server {
+    listen 80:
+    server_name [EC2 퍼블릭 DNS];
+    charset utf-8;
+
+    locatiton / {
+        include     /etc/nginx/uwsgi_params;
+        uwsgi_pass  django;
+    }
+}
+
+    uginx -t // systemctl restart nginx
+
+
+
 
