@@ -39,10 +39,10 @@ aws ec2 서버에 배포
 3. sudo apt-get update, sudo apt-get install nginx, systemctl status nginx
 4. 전용그룹과 계정 만들기
     sudo groupadd djangogroup, sudo useradd -g djangogroup -b /home -m -s /bin/bash django
-    sudo mkdir -p /var/www/e2db
-    sudo chown django:djangogroup /var/www/e2db
+    sudo mkdir -p /var/www
+    sudo chown django:djangogroup /var/www
     sudo usermod -a -G djangogroup ubuntu
-    sudo chmod g+w /var/www/e2db
+    sudo chmod g+w /var/www
 5. 필요한 패키지 설치
     python3 --version
     {
@@ -55,26 +55,24 @@ aws ec2 서버에 배포
     }
     sudo apt-get install build-essential libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info libssl-dev
     sudo apt-get install python3-dev python3-pip python3-cffi python3-venv
-
-
-
-6. 파이썬 가상환경설정
-    cd /var/www/e2db
     sudo apt-get install python3.8-venv
-    sudo python3.8 -m venv venv
-    sudo -s
-    source venv/bin/activate
-    {
-        for test
-        pip install django
-        pip install django-admin startproject config .
-        python manage.py runserver 0:8000
-    }
+    파일질라 설치하고 연결
 
 7. 소스업로드
     config/setting.py : DEBUG = False ALLOWED_HOST = ['.compute.amazonaws.com','127.0.0.1,'localhost']
     pip freeze > requirements.txt
-    소스 업로드
+
+    git push~
+
+    (www 디렉토리에서)
+    sudo git clone https://github.com/bbsking7118/e2db.git
+
+    (cd /var/www/e2db)
+    sudo python3.8 -m venv venv
+
+6. 파이썬 가상환경 실행
+    sudo -s
+    source venv/bin/activate
 
     pip install -r requirements.txt
     pip install uwsgi
